@@ -28,8 +28,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Generated scroll-world frame sequences
-public/assets/scroll-world/frames/
 
 # Local source asset drops
 *.zip
