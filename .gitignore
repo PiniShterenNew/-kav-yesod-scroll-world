@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Production/build artifacts
+dist/
+build/
+coverage/
+
+# Runtime logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local editor/OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Generated scroll-world frame sequences
+public/assets/scroll-world/frames/
+
+# Local source asset drops
+*.zip
+kav-yesod-claude-assets-v*/
+
+# Local review/export scratch
+review/
