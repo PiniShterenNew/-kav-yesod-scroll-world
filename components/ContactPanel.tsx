@@ -1,17 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ContactPanelProps = {
   open: boolean;
   onClose: () => void;
 };
 
+type Status = "idle" | "sending" | "success" | "error";
+
 const focusableSelector =
   'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 export default function ContactPanel({ open, onClose }: ContactPanelProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const [status, setStatus] = useState<Status>("idle");
+
+  useEffect(() => {
+    if (open) setStatus("idle");
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -58,6 +65,25 @@ export default function ContactPanel({ open, onClose }: ContactPanelProps) {
 
   if (!open) return null;
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    setStatus("sending");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
+  };
+
   return (
     <div className="contact-backdrop" role="presentation" onMouseDown={onClose}>
       <div
@@ -73,37 +99,75 @@ export default function ContactPanel({ open, onClose }: ContactPanelProps) {
         </button>
         <p className="concept-label">גרסת הדגמה</p>
         <h2 id="contact-title">מתחילים לתכנן</h2>
-        <p className="contact-panel__note">
-          זהו פרויקט קונספט. אזור יצירת הקשר מוצג להדגמת חוויית האתר בלבד.
-        </p>
-        <form onSubmit={(event) => event.preventDefault()}>
-          <label>
-            שם
-            <input name="name" type="text" autoComplete="name" />
-          </label>
-          <label>
-            טלפון
-            <input name="phone" type="tel" autoComplete="tel" />
-          </label>
-          <label>
-            סוג פרויקט
-            <select name="projectType" defaultValue="">
-              <option value="" disabled>
-                בחירה להדגמה
-              </option>
-              <option>בית פרטי חדש</option>
-              <option>הרחבה או שינוי מבנה</option>
-              <option>התייעצות ראשונית</option>
-            </select>
-          </label>
-          <label>
-            הודעה
-            <textarea name="message" rows={4} />
-          </label>
-          <button className="contact-panel__submit" type="submit" disabled>
-            שליחת פרטים אינה פעילה בהדגמה
-          </button>
-        </form>
+
+        {status === "success" ? (
+          <div className="contact-panel__success" role="status">
+            <span className="contact-panel__success-mark" aria-hidden="true">
+              ✓
+            </span>
+            <h3>הפרטים התקבלו. תודה!</h3>
+            <p>
+              בפרויקט אמיתי היינו חוזרים אליכם תוך יום עסקים. כאן זו הדגמה — שום פרט לא נשמר
+              ולא נשלח לאף גורם.
+            </p>
+            <button className="contact-panel__submit" type="button" onClick={onClose}>
+              חזרה למסע
+            </button>
+          </div>
+        ) : (
+          <>
+            <p className="contact-panel__note">
+              זהו פרויקט קונספט — הטופס עובד מקצה לקצה, אבל הפרטים אינם נשמרים ואינם נשלחים
+              לאף גורם.
+            </p>
+            <form onSubmit={handleSubmit}>
+              <label>
+                שם
+                <input name="name" type="text" autoComplete="name" required minLength={2} />
+              </label>
+              <label>
+                טלפון
+                <input
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  required
+                  pattern="0\d[\d\- ]{7,9}"
+                  title="מספר טלפון ישראלי, לדוגמה 050-1234567"
+                />
+              </label>
+              <label>
+                סוג פרויקט
+                <select name="projectType" defaultValue="">
+                  <option value="" disabled>
+                    בחירת סוג פרויקט
+                  </option>
+                  <option>בית פרטי חדש</option>
+                  <option>הרחבה או שינוי מבנה</option>
+                  <option>התייעצות ראשונית</option>
+                </select>
+              </label>
+              <label>
+                הודעה
+                <textarea name="message" rows={4} />
+              </label>
+              {/* Honeypot: hidden from people (CSS + aria), attractive to bots. */}
+              <label className="contact-panel__hp" aria-hidden="true">
+                חברה
+                <input name="company" type="text" tabIndex={-1} autoComplete="off" />
+              </label>
+              {status === "error" && (
+                <p className="contact-panel__error" role="alert">
+                  משהו השתבש בשליחה. נסו שוב, או חזרו מאוחר יותר.
+                </p>
+              )}
+              <button className="contact-panel__submit" type="submit" disabled={status === "sending"}>
+                {status === "sending" ? "שולח…" : "שליחת פרטים"}
+              </button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );

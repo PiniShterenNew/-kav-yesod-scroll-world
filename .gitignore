@@ -35,3 +35,6 @@ kav-yesod-claude-assets-v*/
 
 # Local review/export scratch
 review/
+
+# TypeScript incremental build info
+tsconfig.tsbuildinfo
