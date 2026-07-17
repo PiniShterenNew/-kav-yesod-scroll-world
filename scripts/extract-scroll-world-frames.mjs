@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const fps = 12;
+// 24 matches the source renders 1:1 — every source frame ships, and the
+// renderer's temporal blending fills the sub-frame remainder. Override per
+// run with a second CLI arg (e.g. `node … desktop 12`) for lighter builds.
+const fps = Number(process.argv[3] || 24);
 
 const sharedIds = [
   "01-opening-to-planning",
