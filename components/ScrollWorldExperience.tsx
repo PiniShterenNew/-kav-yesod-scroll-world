@@ -123,7 +123,7 @@ export default function ScrollWorldExperience() {
         )}
       </div>
 
-      <footer ref={footerRef} className="site-footer">
+      <footer ref={footerRef} id="site-footer" tabIndex={-1} className="site-footer">
         <img src="/brand/logo-full.svg" width="89" height="38" alt="קו יסוד" />
         <p className="footer-concept">פרויקט קונספט</p>
         <p>קו יסוד · מהקרקע ועד המפתח</p>
