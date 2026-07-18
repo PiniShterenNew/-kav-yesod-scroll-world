@@ -22,6 +22,16 @@
 
 html {
   scroll-behavior: smooth;
+  /* No pull-to-refresh / scroll-chain bounce interrupting the journey. */
+  overscroll-behavior-y: none;
+}
+
+/* On touch the engine normalizes scrolling itself (ScrollTrigger
+   normalizeScroll); CSS smooth-scrolling would fight it on anchor jumps. */
+@media (hover: none) and (pointer: coarse) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
